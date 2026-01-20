@@ -164,6 +164,7 @@
 	$effect(() => {
 		if (!enabledArr.find((m) => m.model_id === settings.modelId) && enabledArr.length > 0) {
 			settings.modelId = enabledArr[0]!.model_id;
+			settings.provider = enabledArr[0]!.provider;
 		}
 	});
 
@@ -200,6 +201,11 @@
 
 	function modelSelected(modelId: string) {
 		settings.modelId = modelId;
+		// Find the model to get its provider
+		const model = enabledArr.find(m => m.model_id === modelId);
+		if (model) {
+			settings.provider = model.provider;
+		}
 		open = false;
 	}
 

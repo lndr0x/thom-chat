@@ -128,6 +128,7 @@
 				session_token: session.current?.session.token,
 				conversation_id: page.params.id ?? undefined,
 				model_id: settings.modelId,
+				provider: settings.provider as any,
 				images: imagesCopy.length > 0 ? imagesCopy : undefined,
 				web_search_enabled: settings.webSearchEnabled,
 				reasoning_effort: currentModelSupportsReasoning ? settings.reasoningEffort : undefined,
