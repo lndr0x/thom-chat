@@ -416,27 +416,25 @@ async function generateAIResponse({
 	log(`Background: ${attachedRules.length} rules attached`, startTime);
 
 	// Get the appropriate base URL and client configuration for the provider
-	let baseURL: string;
-	let defaultHeaders: Record<string, string> = {};
-	
-	if (provider === Provider.OpenRouter) {
-		baseURL = 'https://openrouter.ai/api/v1';
-	} else if (provider === Provider.Groq) {
-		baseURL = 'https://api.groq.com/openai/v1';
-	} else if (provider === Provider.Gemini) {
-		// For Gemini, we need to use the Google AI API with a different structure
-		// We'll handle this specially below
-		baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai/';
-		defaultHeaders = { 'x-goog-api-key': actualKey };
-	} else {
-		// Fallback to OpenRouter for other providers
-		baseURL = 'https://openrouter.ai/api/v1';
-	}
+	const providerConfigs: Record<string, { baseURL: string; defaultHeaders?: Record<string, string> }> = {
+		[Provider.OpenRouter]: {
+			baseURL: 'https://openrouter.ai/api/v1',
+		},
+		[Provider.Groq]: {
+			baseURL: 'https://api.groq.com/openai/v1',
+		},
+		[Provider.Gemini]: {
+			baseURL: 'https://generativelanguage.googleapis.com/v1beta/',
+			defaultHeaders: { 'x-goog-api-key': actualKey },
+		},
+	};
+
+	const config = providerConfigs[provider] || providerConfigs[Provider.OpenRouter];
 
 	const openai = new OpenAI({
-		baseURL,
+		baseURL: config.baseURL,
 		apiKey: actualKey,
-		defaultHeaders,
+		defaultHeaders: config.defaultHeaders,
 	});
 
 	const formattedMessages = messages.map((m) => {
