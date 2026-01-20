@@ -5,6 +5,8 @@ export const Provider = {
 	HuggingFace: 'huggingface',
 	OpenAI: 'openai',
 	Anthropic: 'anthropic',
+	Groq: 'groq',
+	Gemini: 'gemini',
 } as const;
 
 export type Provider = (typeof Provider)[keyof typeof Provider];
