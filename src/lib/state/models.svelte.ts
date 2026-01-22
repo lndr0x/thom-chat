@@ -24,7 +24,9 @@ export class Models {
 	});
 
 	from<P extends Provider>(provider: Provider) {
-		return page.data.models[provider].map((m: { id: string }) => {
+		const modelsForProvider = page.data.models?.[provider] ?? [];
+
+		return modelsForProvider.map((m: { id: string }) => {
 			return {
 				...m,
 				enabled: this.enabled[getModelKey({ provider, model_id: m.id })] !== undefined,
