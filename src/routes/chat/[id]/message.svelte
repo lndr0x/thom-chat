@@ -21,7 +21,7 @@
 	import { settings } from '$lib/state/settings.svelte';
 	import ShinyText from '$lib/components/animations/shiny-text.svelte';
 	import ChevronRightIcon from '~icons/lucide/chevron-right';
-	import { AnnotationSchema, type Annotation } from '$lib/types';
+	import { AnnotationSchema, type Annotation, Provider } from '$lib/types';
 	import ExternalLinkIcon from '~icons/lucide/external-link';
 	import GlobeIcon from '~icons/lucide/globe';
 	import { Avatar } from 'melt/components';
@@ -82,6 +82,7 @@
 				session_token: session.current?.session.token ?? '',
 				conversation_id: cid,
 				model_id: settings.modelId,
+				provider: settings.provider as Provider,
 				images: message.images,
 				web_search_enabled: message.web_search_enabled,
 			});

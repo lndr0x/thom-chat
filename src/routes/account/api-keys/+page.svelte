@@ -39,6 +39,20 @@
 			],
 			placeholder: 'sk-ant-...',
 		},
+		[Provider.Groq]: {
+			title: 'Groq',
+			link: 'https://console.groq.com/keys',
+			description: 'API Key for Groq, ultra-fast LLM inference.',
+			models: ['llama-3.3-70b', 'mixtral-8x7b', 'gemma2-9b'],
+			placeholder: 'gsk_...',
+		},
+		[Provider.Gemini]: {
+			title: 'Google Gemini',
+			link: 'https://aistudio.google.com/app/apikey',
+			description: 'API Key for Google Gemini models.',
+			models: ['gemini-2.0-flash', 'gemini-1.5-pro'],
+			placeholder: 'AIza...',
+		},
 	};
 </script>
 
@@ -56,8 +70,8 @@
 
 <div class="mt-8 flex flex-col gap-4">
 	{#each allProviders as provider (provider)}
-		<!-- only do OpenRouter for now -->
-		{#if provider === Provider.OpenRouter}
+		<!-- Display OpenRouter, Groq, and Gemini for now -->
+		{#if provider === Provider.OpenRouter || provider === Provider.Groq || provider === Provider.Gemini}
 			{@const meta = providersMeta[provider]}
 			<ProviderCard {provider} {meta} />
 		{/if}

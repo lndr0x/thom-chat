@@ -121,6 +121,68 @@ export const set = mutation({
 					})
 				);
 			}
+
+			if (args.provider === Provider.Groq) {
+				const defaultModels = [
+					'llama-3.3-70b-versatile',
+					'mixtral-8x7b-32768',
+					'gemma2-9b-it',
+				];
+
+				await Promise.all(
+					defaultModels.map(async (model) => {
+						const existing = await ctx.db
+							.query('user_enabled_models')
+							.withIndex('by_model_provider_user', (q) =>
+								q
+									.eq('model_id', model)
+									.eq('provider', Provider.Groq)
+									.eq('user_id', session.userId)
+							)
+							.first();
+
+						if (existing) return;
+
+						await ctx.db.insert('user_enabled_models', {
+							user_id: session.userId,
+							provider: Provider.Groq,
+							model_id: model,
+							pinned: true,
+						});
+					})
+				);
+			}
+
+			if (args.provider === Provider.Gemini) {
+				const defaultModels = [
+					'gemini-2.0-flash-exp',
+					'gemini-1.5-pro',
+					'gemini-1.5-flash',
+				];
+
+				await Promise.all(
+					defaultModels.map(async (model) => {
+						const existing = await ctx.db
+							.query('user_enabled_models')
+							.withIndex('by_model_provider_user', (q) =>
+								q
+									.eq('model_id', model)
+									.eq('provider', Provider.Gemini)
+									.eq('user_id', session.userId)
+							)
+							.first();
+
+						if (existing) return;
+
+						await ctx.db.insert('user_enabled_models', {
+							user_id: session.userId,
+							provider: Provider.Gemini,
+							model_id: model,
+							pinned: true,
+						});
+					})
+				);
+			}
 		}
 	},
 });

@@ -21,6 +21,7 @@ const reqBodySchema = z
 	.object({
 		message: z.string().optional(),
 		model_id: z.string(),
+		provider: z.enum(['openrouter', 'huggingface', 'openai', 'anthropic', 'groq', 'gemini']),
 
 		session_token: z.string(),
 		conversation_id: z.string().optional(),
@@ -185,6 +186,7 @@ async function generateAIResponse({
 	userSettingsPromise,
 	abortSignal,
 	reasoningEffort,
+	provider,
 }: {
 	conversationId: string;
 	sessionToken: string;
@@ -195,6 +197,7 @@ async function generateAIResponse({
 	userSettingsPromise: ResultAsync<Doc<'user_settings'> | null, string>;
 	abortSignal?: AbortSignal;
 	reasoningEffort?: 'low' | 'medium' | 'high';
+	provider: Provider;
 }) {
 	log('Starting AI response generation in background', startTime);
 
@@ -268,7 +271,7 @@ async function generateAIResponse({
 		client.mutation(api.messages.create, {
 			conversation_id: conversationId,
 			model_id: model.model_id,
-			provider: Provider.OpenRouter,
+			provider: provider,
 			content: '',
 			role: 'assistant',
 			session_token: sessionToken,
@@ -412,9 +415,26 @@ async function generateAIResponse({
 
 	log(`Background: ${attachedRules.length} rules attached`, startTime);
 
+	// Get the appropriate base URL and client configuration for the provider
+	const providerConfigs: Record<string, { baseURL: string; defaultHeaders?: Record<string, string> }> = {
+		[Provider.OpenRouter]: {
+			baseURL: 'https://openrouter.ai/api/v1',
+		},
+		[Provider.Groq]: {
+			baseURL: 'https://api.groq.com/openai/v1',
+		},
+		[Provider.Gemini]: {
+			baseURL: 'https://generativelanguage.googleapis.com/v1beta/',
+			defaultHeaders: { 'x-goog-api-key': actualKey },
+		},
+	};
+
+	const config = providerConfigs[provider] || providerConfigs[Provider.OpenRouter];
+
 	const openai = new OpenAI({
-		baseURL: 'https://openrouter.ai/api/v1',
+		baseURL: config.baseURL,
 		apiKey: actualKey,
+		defaultHeaders: config.defaultHeaders,
 	});
 
 	const formattedMessages = messages.map((m) => {
@@ -681,7 +701,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const modelResultPromise = ResultAsync.fromPromise(
 		client.query(api.user_enabled_models.get, {
-			provider: Provider.OpenRouter,
+			provider: args.provider as Provider,
 			model_id: args.model_id,
 			session_token: sessionToken,
 		}),
@@ -690,7 +710,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const keyResultPromise = ResultAsync.fromPromise(
 		client.query(api.user_keys.get, {
-			provider: Provider.OpenRouter,
+			provider: args.provider as Provider,
 			session_token: sessionToken,
 		}),
 		(e) => `Failed to get API key: ${e}`
@@ -806,6 +826,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		userSettingsPromise,
 		abortSignal: abortController.signal,
 		reasoningEffort: args.reasoning_effort,
+		provider: args.provider as Provider,
 	})
 		.catch(async (error) => {
 			log(`Background AI response generation error: ${error}`, startTime);

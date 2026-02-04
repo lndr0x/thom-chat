@@ -94,6 +94,8 @@ While thom.chat is a clone, the featureset is not identical to T3 Chat.
 - pnpm (recommended)
 - OpenRouter API key (optional for free tier)
 
+> **💡 Deploying to production?** Check out our [Deployment Guide](DEPLOYMENT.md) for Vercel deployment instructions.
+
 ### Installation
 
 1. **Clone the repository**

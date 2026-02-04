@@ -69,6 +69,14 @@
 				return (await providers.OpenRouter.getApiKey(key)).unwrapOr(null);
 			}
 
+			if (provider === Provider.Groq) {
+				return (await providers.Groq.getApiKey(key)).unwrapOr(null);
+			}
+
+			if (provider === Provider.Gemini) {
+				return (await providers.Gemini.getApiKey(key)).unwrapOr(null);
+			}
+
 			return null;
 		}
 	);
